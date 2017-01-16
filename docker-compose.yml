@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  cowrie:
+    hostname: "cowrie"
+    build:
+      context: honeypots/cowrie/
+    ports:
+      - 2222:2222
+    volumes:
+      - cowrie:/data
+    restart: always
+
+volumes:
+  cowrie:
+    driver: local

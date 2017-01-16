@@ -1,0 +1,14 @@
+---
+
+  - name: Configure collector
+    hosts: collector
+    roles:
+    - collector
+    become: true
+
+  - name: Configure honeypot
+    hosts: honeypot
+    roles:
+    - honeypot
+    - honeypot.cowrie
+    become: true

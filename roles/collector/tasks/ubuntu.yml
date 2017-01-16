@@ -1,0 +1,28 @@
+---
+
+  - name: install elastic key
+    apt_key:
+      url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      state: present
+
+  - name: install elastic repo
+    apt_repository:
+      repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+      state: present
+
+  - name: update system packages
+    apt:
+      upgrade: dist
+      update_cache: yes
+      cache_valid_time: 3600
+
+  - name: install system packages
+    apt:
+      name: "{{item}}"
+      state: latest
+    with_items:
+    - apt-transport-https
+    - autossh
+    - openjdk-8-jre
+    - elasticsearch
+    - logstash

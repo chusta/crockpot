@@ -1,0 +1,16 @@
+---
+
+  - name: cowrie - directory
+    file:
+      path: /honeypot/cowrie
+      state: directory
+
+  - name: cowrie - Dockerfile
+    copy:
+      src: Dockerfile
+      dest: /honeypot/Dockerfile
+
+  - name: cowrie - config
+    template:
+      src: cowrie.cfg.j2
+      dest: /honeypot/cowrie.cfg

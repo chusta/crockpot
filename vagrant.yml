@@ -1,0 +1,93 @@
+---
+# ubuntu/xenial64
+
+  - hosts: all
+    become: yes
+
+    vars:
+    - name: crockpot
+
+    tasks:
+    - name: hostname
+      hostname:
+        name: "{{name}}"
+
+    - name: /etc/hosts - hostname
+      replace:
+        dest: "/etc/hosts"
+        regexp: "127.0.0.1.*"
+        replace: "127.0.0.1 localhost {{name}}"
+
+    - name: prompt
+      lineinfile:
+        dest: "~/.profile"
+        line: "PS1='\\[\\033[01;38;5;214m\\]\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"
+      become: vagrant
+
+    - name: create files
+      file:
+        state: touch
+        dest: "{{item}}"
+      with_items:
+      - .Xauthority
+      - .hushlogin
+      become: ubuntu
+
+    - name: docker apt-key
+      apt_key:
+        keyserver: hkp://ha.pool.sks-keyservers.net:80
+        id: 58118E89F3A912897C070ADBF76221572C52609D
+        state: present
+
+    - name: docker apt-repo
+      apt_repository:
+        repo: "deb https://apt.dockerproject.org/repo ubuntu-xenial main"
+        state: present
+
+    - name: update system
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+        upgrade: full
+
+    - name: remove packages
+      apt:
+        name: "{{item}}"
+        state: absent
+      with_items:
+      - augeas-lenses
+      - bundler
+      - chef
+      - chef-zero
+      - erubis
+      - facter
+      - puppet-common
+      - ruby
+      - ruby1.9.1-dev
+
+    - name: system packages
+      apt:
+        name: "{{item}}"
+        state: latest
+      with_items:
+      - docker-engine
+      - git
+      - iftop
+      - libssl-dev
+      - lsof
+      - python-dev
+      - python-pip
+      - python-virtualenv
+      - tmux
+      - tree
+      - vim
+      - xsel
+
+    - name: python packages
+      pip:
+        name: "{{item}}"
+        state: latest
+      with_items:
+      - ansible
+      - ansible-container
+      - docker-compose
