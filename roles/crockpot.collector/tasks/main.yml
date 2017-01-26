@@ -5,7 +5,3 @@
       msg: "{{ansible_distribution|lower}} {{ansible_distribution_version}}"
 
   - include: ubuntu.yml
-    when: ansible_distribution == "Ubuntu"
-
-  - include: centos.yml
-    when: ansible_distribution == "CentOS"

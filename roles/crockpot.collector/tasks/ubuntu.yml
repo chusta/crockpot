@@ -16,13 +16,29 @@
       update_cache: yes
       cache_valid_time: 3600
 
-  - name: install system packages
+  - name: system packages
     apt:
       name: "{{item}}"
       state: latest
     with_items:
     - apt-transport-https
     - autossh
-    - openjdk-8-jre
+    - ca-certificates
+    - default-jre-headless
     - elasticsearch
     - logstash
+
+  - name: locate old logstash configs
+    find:
+      path: /etc/logstash/conf.d
+      pattern: ssh_*.conf
+    register: old_cfg
+
+  - name: remove old logstash configs
+    file:
+      path: "{{item.path}}"
+      state: absent
+    with_items: "{{old_cfg.files}}"
+
+  - include: logstash.yml
+    with_sequence: start=65001 end="{{tunnel_count|int + 65000}}"

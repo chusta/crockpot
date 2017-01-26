@@ -1,0 +1,12 @@
+input {
+  file {
+    path => [ "{{cowrie_log_json}}" ]
+    type = "cowrie"
+  }
+}
+
+filter {
+  if [type] == "cowrie" {
+    date { match => [ "timestamp", "ISO08601" ] }
+  }
+}

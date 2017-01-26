@@ -1,6 +1,64 @@
 ---
 
-  - name: create data directory
-    file:
-      path: /honeypot
-      state: directory
+  - name: docker apt-key
+    apt_key:
+      keyserver: hkp://ha.pool.sks-keyservers.net:80
+      id: 58118E89F3A912897C070ADBF76221572C52609D
+      state: present
+
+  - name: docker apt-repo
+    apt_repository:
+      repo: "deb https://apt.dockerproject.org/repo ubuntu-xenial main"
+      state: present
+
+  - name: update system
+    apt:
+      update_cache: yes
+      cache_valid_time: 86400
+      upgrade: full
+
+  - name: system packages
+    apt:
+      name: "{{item}}"
+      state: latest
+    with_items:
+    - docker-engine
+
+  - name: python packages
+    pip:
+      name: "{{item}}"
+      state: latest
+    with_items:
+    - docker-compose
+
+  - name: create group
+    group:
+      name: crockpot
+      state: present
+      gid: 9999
+
+  - name: create user
+    user:
+      name: crockpot
+      group: crockpot
+      shell: /bin/false
+      home: /crockpot
+      uid: 9999
+      state: present
+
+  - name: copy docker-compose base
+    copy:
+      src: docker-compose.yml
+      dest: /honeypot
+      owner: crockpot
+
+  - name: download geolite2 db
+    get_url:
+      url: http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
+      dest: /crockpot
+      owner: crockpot
+    register: geodb
+
+  - name: gunzip geolite2
+    command: gunzip -f /crockpot/GeoLite2-City.mmdb.gz
+    when: geodb.changed

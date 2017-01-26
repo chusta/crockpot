@@ -1,0 +1,4 @@
+---
+
+  crockpot_path: /crockpot
+  logstash_path: "{{crockpot_path}}/logstash"

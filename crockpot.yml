@@ -1,14 +1,15 @@
 ---
 
-  - name: Configure collector
+  - name: configure collector
     hosts: collector
     roles:
-    - collector
+    - crockpot.collector
     become: true
 
-  - name: Configure honeypot
+  - name: configure honeypot
     hosts: honeypot
     roles:
     - honeypot
     - honeypot.cowrie
+    - crockpot.logstash
     become: true

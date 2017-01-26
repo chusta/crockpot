@@ -1,0 +1,7 @@
+input {
+  http {
+    codec => json
+    host  => "127.0.0.1"
+    port  => {{tun_port}}
+  }
+}

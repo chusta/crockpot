@@ -1,16 +1,23 @@
 ---
 
-  - name: cowrie - directory
+  - name: cowrie - directories
     file:
-      path: /honeypot/cowrie
+      path: "{{item}}"
+      recurse: yes
       state: directory
+      owner: crockpot
+      group: crockpot
+      mode: 0755
+    with_items:
+    - "{{cowrie_logs}}"
+    - "{{cowrie_download}}"
 
   - name: cowrie - Dockerfile
     copy:
       src: Dockerfile
-      dest: /honeypot/Dockerfile
+      dest: "/crockpot/Dockerfile.cowrie"
 
   - name: cowrie - config
     template:
       src: cowrie.cfg.j2
-      dest: /honeypot/cowrie.cfg
+      dest: "{{cowrie_path}}/cowrie.cfg"

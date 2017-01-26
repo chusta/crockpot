@@ -1,0 +1,13 @@
+[Unit]
+Description=SSH tunnel to {{honeypot_name}}
+
+[Service]
+Type=simple
+User=crockpot
+Group=crockpot
+ExecStart=/usr/bin/autossh -R 9999:localhost:{{port}} {{crockpot}}@{{addr}} -p65535
+Restart=always
+TiemoutSec=infinity
+
+[Install]
+WantedBy=multi-user.target

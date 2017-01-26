@@ -1,0 +1,35 @@
+filter {
+  if [sensor] {
+    mutate { update => { "sensor" => "{{sensor_name}}" } }
+  } else {
+    mutate { add_field => { "sensor" => "{{sensor_name}}" } }
+  }
+
+  if [src_port] {
+    mutate { convert => { "src_port" => "integer" } }
+  }
+  if [dst_port] {
+    mutate { convert => { "dst_port" => "integer" } }
+  }
+
+  # geoip
+  if [src_ip] {
+    geoip {
+      source => "src_ip"
+      target => "geoip"
+      database => "/honeypot/GeoLite2-City.mmdb"
+
+      add_field => [ "[geoip][coordinates]", "%{[geoip][longitude]}" ]
+      add_field => [ "[geoip][coordinates]", "%{[geoip][latitude]}" ]
+    }
+    mutate { convert => [ "[geoip][coordinates]", "float" ] }
+  }
+}
+
+output {
+  http {
+    codec => json
+    http_method => post
+    url => "http://127.0.0.1:9999"
+  }
+}

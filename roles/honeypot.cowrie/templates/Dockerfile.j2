@@ -1,0 +1,30 @@
+FROM ubuntu:16.04
+
+ENV REPO https://github.com/micheloosterhof/cowrie
+ENV PYTHONPATH {{cowrie_path}}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    python-dev \
+    python-pip \
+    python-setuptools \
+    libmpfr-dev \
+    libssl-dev \
+    libmpc-dev \
+    libffi-dev && \
+  rm -rf /var/lib/apt/lists/*
+
+RUN adduser cowrie --home {{cowrie_path}} --shell /bin/false --disabled-pasword --no-create-home
+
+RUN mkdir /honeypot
+
+RUN git clone --depth 1 ${REPO} {{cowrie_path}} && \
+    pip install -r /cowrie/requirements.txt --upgrade --no-cache-dir && \
+    mkdir -p {{cowrie_download}} && chown -R cowrie:cowrie
+
+USER cowrie
+WORKDIR /honeypot/cowrie
+
+COPY [ "cowrie.cfg", "{{cowrie_path}}" ]
+CMD [ "twistd", "--nodaemon", "--umask", "0077", "--pidfile", "var/run/cowrie.pid", "cowrie" ]

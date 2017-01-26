@@ -1,0 +1,7 @@
+---
+
+  cowrie_path: "/honeypot/cowrie"
+  cowrie_logs: "{{cowrie_path}}/logs"
+
+  cowrie_download: "{{cowrie_path}}/download"
+  cowrie_log_json: "{{cowrie_logs}}/cowrie.json"

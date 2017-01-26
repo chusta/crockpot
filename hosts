@@ -1,5 +1,5 @@
 [collector]
-127.0.0.1
+localhost
 
 [honeypot]
-127.0.0.1
+localhost
