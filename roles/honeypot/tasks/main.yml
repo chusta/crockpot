@@ -66,7 +66,10 @@
     when: geodb.changed
 
   - name: docker-compose template (base)
-    local_action: template src=compose-base.j2 dest={{playbook_dir}}/resources/base.j2
+    local_action:
+      module: template
+      src: compose-base.j2 
+      dest: "{{playbook_dir}}/resources/base.j2"
 
   - name: build honeypot list
     set_fact:

@@ -1,5 +1,11 @@
 ---
 
+  - name: configure localhost
+    hosts: localhost
+    roles:
+    - localhost
+    become: true
+
   - name: configure collector
     hosts: collector
     roles:

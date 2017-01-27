@@ -22,7 +22,10 @@
     - { "s": "cowrie.cfg.j2", "d": "{{cowrie_path}}/cowrie.cfg" }
 
   - name: docker-compose template (cowrie)
-    local_action: template src=compose-snippet.j2 dest={{playbook_dir}}/resources/cowrie.j2
+    local_action:
+      module: template
+      src: compose-snippet.j2
+      dest: "{{playbook_dir}}/resources/cowrie.j2"
 
   - name: add to honeypot list
     set_fact:

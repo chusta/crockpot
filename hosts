@@ -6,3 +6,6 @@ cowrie
 
 [cowrie]
 localhost
+
+[localhost]
+localhost
