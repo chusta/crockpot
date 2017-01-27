@@ -46,6 +46,13 @@
       uid: 9999
       state: present
 
+  - name: honeypot directories
+    file:
+      path: "{{item}}"
+      state: directory
+    with_items:
+    - "/honeypot"
+
   - name: copy docker-compose base
     copy:
       src: docker-compose.yml

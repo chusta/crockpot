@@ -70,6 +70,7 @@
         name: "{{item}}"
         state: latest
       with_items:
+      - ca-certificates
       - docker-engine
       - git
       - iftop
