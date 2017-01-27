@@ -52,12 +52,7 @@
       state: directory
     with_items:
     - "/honeypot"
-
-  - name: copy docker-compose base
-    copy:
-      src: docker-compose.yml
-      dest: /honeypot
-      owner: crockpot
+    - "/crockpot/conf"
 
   - name: download geolite2 db
     get_url:
@@ -69,3 +64,10 @@
   - name: gunzip geolite2
     command: gunzip -f /crockpot/GeoLite2-City.mmdb.gz
     when: geodb.changed
+
+  - name: docker-compose template (base)
+    local_action: template src=compose-base.j2 dest={{playbook_dir}}/resources/base.j2
+
+  - name: build honeypot list
+    set_fact:
+      honeypots: [ "base" ]

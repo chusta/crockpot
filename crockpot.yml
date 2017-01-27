@@ -12,4 +12,5 @@
     - honeypot
     - honeypot.cowrie
     - crockpot.logstash
+    - crockpot.start
     become: true

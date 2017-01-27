@@ -1,23 +1,33 @@
 ---
 
-  - name: cowrie - directories
+  - name: build directories
     file:
       path: "{{item}}"
       state: directory
       owner: crockpot
-      group: crockpot
       mode: 0755
     with_items:
     - "{{cowrie_path}}"
+    - "{{cowrie_base}}"
     - "{{cowrie_logs}}"
     - "{{cowrie_download}}"
 
-  - name: cowrie - Dockerfile
+  - name: config templates
     template:
-      src: Dockerfile.j2
-      dest: "/crockpot/Dockerfile.cowrie"
+      src: "{{item.s}}"
+      dest: "{{item.d}}"
+      owner: crockpot
+    with_items:
+    - { "s": "Dockerfile.j2", "d": "{{cowrie_path}}/Dockerfile" }
+    - { "s": "cowrie.cfg.j2", "d": "{{cowrie_path}}/cowrie.cfg" }
 
-  - name: cowrie - config
-    template:
-      src: cowrie.cfg.j2
-      dest: "{{cowrie_path}}/cowrie.cfg"
+  - name: docker-compose template (cowrie)
+    local_action: template src=compose-snippet.j2 dest={{playbook_dir}}/resources/cowrie.j2
+
+  - name: add to honeypot list
+    set_fact:
+      honeypots: "{{honeypots}} + [ 'cowrie' ]"
+
+  - name: print
+    debug:
+      msg: "{{honeypots}}"

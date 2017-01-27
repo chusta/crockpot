@@ -15,13 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev && \
   rm -rf /var/lib/apt/lists/*
 
-RUN adduser cowrie --home {{cowrie_path}} --shell /bin/false --disabled-pasword --no-create-home
+RUN adduser cowrie --home {{cowrie_path}} --shell /bin/false --disabled-password --no-create-home
 
 RUN mkdir /honeypot
 
 RUN git clone --depth 1 ${REPO} {{cowrie_path}} && \
-    pip install -r /cowrie/requirements.txt --upgrade --no-cache-dir && \
-    mkdir -p {{cowrie_download}} && chown -R cowrie:cowrie
+    pip install -r {{cowrie_path}}/requirements.txt --upgrade --no-cache-dir && \
+    mkdir -p {{cowrie_download}} && chown -R cowrie:cowrie {{cowrie_path}}
 
 USER cowrie
 WORKDIR /honeypot/cowrie

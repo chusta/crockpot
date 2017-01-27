@@ -1,0 +1,11 @@
+  cowrie:
+    build:
+      context: cowrie
+    ports:
+    - 2222:2222
+    - 2323:2323
+    volumes:
+    - /honeypot/cowrie/base:/honeypot/cowrie/base
+    - /honeypot/cowrie/logs:/honeypot/cowrie/logs
+    - /honeypot/cowrie/download:/honeypot/cowrie/download
+    restart: always

@@ -1,0 +1,4 @@
+{% for honeypot in honeypots %}
+{% set config = playbook_dir + "/resources/" + honeypot + ".j2" %}
+{{ lookup("template", config) }}
+{% endfor %}

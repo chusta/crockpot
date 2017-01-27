@@ -1,0 +1,12 @@
+---
+
+  - name: build docker-compose (base)
+    template:
+      src: docker-compose.yml.j2
+      dest: "/honeypot/docker-compose.yml"
+
+  - name: docker-compose down
+    command: chdir=/honeypot docker-compose down
+
+  - name: docker-compose up
+    command: chdir=/honeypot docker-compose up -d
