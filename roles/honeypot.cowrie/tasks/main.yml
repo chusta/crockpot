@@ -8,9 +8,8 @@
       mode: 0755
     with_items:
     - "{{cowrie_path}}"
-    - "{{cowrie_base}}"
-    - "{{cowrie_logs}}"
-    - "{{cowrie_download}}"
+    - "{{cowrie_path}}/logs"
+    - "{{cowrie_path}}/download"
 
   - name: config templates
     template:
@@ -18,19 +17,15 @@
       dest: "{{item.d}}"
       owner: crockpot
     with_items:
-    - { "s": "Dockerfile.j2", "d": "{{cowrie_path}}/Dockerfile" }
+    - { "s": "docker/Dockerfile.j2", "d": "{{cowrie_path}}/Dockerfile" }
     - { "s": "cowrie.cfg.j2", "d": "{{cowrie_path}}/cowrie.cfg" }
 
-  - name: docker-compose template (cowrie)
+  - name: create local docker-compose snippet (cowrie)
     local_action:
       module: template
-      src: compose-snippet.j2
+      src: "docker/compose-snippet.j2"
       dest: "{{playbook_dir}}/resources/cowrie.j2"
 
   - name: add to honeypot list
     set_fact:
       honeypots: "{{honeypots}} + [ 'cowrie' ]"
-
-  - name: print
-    debug:
-      msg: "{{honeypots}}"

@@ -1,7 +1,7 @@
 [honeypot]
 hostname = srv
-log_path = {{cowrie_logs}}
-download_path = {{cowrie_download}}
+log_path = {{cowrie_path}}/logs
+download_path = {{cowrie_path}}/download
 data_path = data
 contents_path = honeyfs
 filesystem_file = data/fs.pickle
@@ -29,4 +29,4 @@ reported_port = 23
 
 
 [output_jsonlog]
-logfile = {{cowrie_log_json}}
+logfile = {{cowrie_path}}/logs/cowrie.json

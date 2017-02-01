@@ -1,0 +1,9 @@
+  cowrie:
+    build:
+      context: cowrie
+    ports:
+    - 2222:2222
+    - 2323:2323
+    volumes:
+    - {{cowrie_path}}:{{cowrie_path}}
+    restart: always

@@ -24,7 +24,7 @@ RUN git clone --depth 1 ${REPO} {{cowrie_path}} && \
     mkdir -p {{cowrie_download}} && chown -R cowrie:cowrie {{cowrie_path}}
 
 USER cowrie
-WORKDIR /honeypot/cowrie
+WORKDIR {{cowrie_path}}
 
 COPY [ "cowrie.cfg", "{{cowrie_path}}" ]
 CMD [ "twistd", "--nodaemon", "--umask", "0077", "--pidfile", "var/run/cowrie.pid", "cowrie" ]
