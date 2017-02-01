@@ -1,0 +1,14 @@
+---
+
+  - name: print services
+    debug:
+      msg: "{{item}}"
+    with_fileglob: "templates/services/*.yaml"
+
+  - name: copy services configs
+    template:
+      src: "services/{{item}}"
+      dest: "{{dionaea_path}}/conf/services/"
+      mode: 0640
+      owner: crockpot
+    with_fileglob: "templates/services/*.yaml"

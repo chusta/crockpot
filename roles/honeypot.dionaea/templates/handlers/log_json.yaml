@@ -1,0 +1,5 @@
+- name: log_json
+  config:
+    flat_data: true
+    handlers:
+      - file:///{{dionaea_path}}/logs/dionaea.json

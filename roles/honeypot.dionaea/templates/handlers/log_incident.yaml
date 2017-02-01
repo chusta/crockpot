@@ -1,0 +1,4 @@
+- name: log_incident
+  config:
+    handlers:
+      - file:///{{dionaea_path}}/logs/dionaea_incident.json

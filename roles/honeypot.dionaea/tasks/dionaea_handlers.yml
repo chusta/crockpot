@@ -1,0 +1,14 @@
+---
+
+  - name: print handlers
+    debug:
+      msg: "{{item}}"
+    with_fileglob: "templates/handlers/*.yaml"
+
+  - name: copy ihandler configs
+    template:
+      src: "handlers/{{item}}"
+      dest: "{{dionaea_path}}/conf/handlers/"
+      mode: 0640
+      owner: crockpot
+    with_fileglob: "templates/handlers/*.yaml"

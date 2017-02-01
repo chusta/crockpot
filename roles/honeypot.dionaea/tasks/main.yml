@@ -1,0 +1,41 @@
+---
+
+  - name: build directories
+    file:
+      path: "{{item}}"
+      state: directory
+      owner: crockpot
+      mode: 0755
+    with_items:
+    - "{{dionaea_path}}"
+    - "{{dionaea_path}}/logs"
+    - "{{dionaea_path}}/binaries"
+    - "{{dionaea_path}}/bistreams"
+    - "{{dionaea_path}}/conf"
+    - "{{dionaea_path}}/conf/handlers"
+    - "{{dionaea_path}}/conf/services"
+
+  - name: config templates
+    template:
+      src: "{{item.s}}"
+      dest: "{{item.d}}"
+      owner: crockpot
+    with_items:
+    - { "s": "docker/Dockerfile.j2", "d": "{{dioanea_path}}/Dockerfile" }
+    - { "s": "dionaea.cfg.j2", "d": "{{dioanea_path}}/dionaea.cfg" }
+
+  - name: configure dionaea handlers
+    include: dionaea_handlers.yml
+
+  - name: configure dionaea services
+    include: dionaea_services.yml
+
+  - name: create local docker-compose snippet (dionaea)
+    local_action:
+      module: template
+      src: compose-snippet.j2
+      dest: "{{playbook_dir}}/resources/dionaea.j2"
+
+  - name: add to honeypot list
+    set_fact:
+      honeypots: "{{honeypots}} + [ 'dionaea' ]"
