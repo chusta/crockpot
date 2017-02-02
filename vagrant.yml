@@ -6,6 +6,8 @@
 
     vars:
     - name: crockpot
+    - user: ubuntu
+    - home: "/home/{{user}}"
 
     tasks:
     - name: hostname
@@ -31,7 +33,7 @@
       with_items:
       - .Xauthority
       - .hushlogin
-      become: ubuntu
+      become: "{{user}}"
 
     - name: docker apt-key
       apt_key:
@@ -92,3 +94,25 @@
       - pip
       - ansible
       - docker-compose
+
+    - name: check for ssh keys
+      stat:
+        path: "{{home}}/.ssh/id_ed25519"
+      register: ssh_key
+
+    - name: create SSH tunnel keys
+      shell: >
+        echo "n" | ssh-keygen
+        -f "{{home}}/.ssh/id_ed25519"
+        -t ed25519 -C "{{user}}" -N "" -q
+      become: "{{user}}"
+      when: not ssh_key.stat.exists
+
+    - name: create authorized_keys
+      shell: chdir="{{home}}/.ssh" cat id_ed25519.pub >> authorized_keys
+      become: "{{user}}"
+      when: not ssh_key.stat.exists
+
+    - name: run crockpot
+      command: chdir=/vagrant ansible-playbook crockpot.yml
+      become: "{{user}}"

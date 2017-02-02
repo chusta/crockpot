@@ -11,9 +11,8 @@
     - "{{dionaea_path}}/logs"
     - "{{dionaea_path}}/binaries"
     - "{{dionaea_path}}/bistreams"
-    - "{{dionaea_path}}/conf"
-    - "{{dionaea_path}}/conf/handlers"
-    - "{{dionaea_path}}/conf/services"
+    - "{{dionaea_path}}/handlers"
+    - "{{dionaea_path}}/services"
 
   - name: config templates
     template:
@@ -21,21 +20,42 @@
       dest: "{{item.d}}"
       owner: crockpot
     with_items:
-    - { "s": "docker/Dockerfile.j2", "d": "{{dioanea_path}}/Dockerfile" }
-    - { "s": "dionaea.cfg.j2", "d": "{{dioanea_path}}/dionaea.cfg" }
+    - { "s": "docker/Dockerfile.j2", "d": "{{dionaea_path}}/Dockerfile" }
+    - { "s": "dionaea.cfg.j2", "d": "{{dionaea_path}}/dionaea.cfg" }
 
-  - name: configure dionaea handlers
-    include: dionaea_handlers.yml
+  - name: copy handlers configs
+    template:
+      src: "{{item}}"
+      dest: "{{dionaea_path}}/handlers"
+      mode: 0640
+      owner: crockpot
+    with_fileglob: "templates/handlers/*.yaml"
 
-  - name: configure dionaea services
-    include: dionaea_services.yml
+  - name: copy services configs
+    template:
+      src: "{{item}}"
+      dest: "{{dionaea_path}}/services"
+      mode: 0640
+      owner: crockpot
+    with_fileglob: "templates/services/*.yaml"
 
   - name: create local docker-compose snippet (dionaea)
     local_action:
       module: template
-      src: compose-snippet.j2
+      src: "docker/compose-snippet.j2"
       dest: "{{playbook_dir}}/resources/dionaea.j2"
 
   - name: add to honeypot list
     set_fact:
       honeypots: "{{honeypots}} + [ 'dionaea' ]"
+
+  - name: logstash directory
+    file:
+      path: /etc/logstash/conf.d
+      recurse: true
+      state: directory
+
+  - name: dionaea logstash configuration
+    template:
+      src: dionaea.log.conf.j2
+      dest: /etc/logstash/conf.d/dionaea.log.conf

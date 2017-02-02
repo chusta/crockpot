@@ -2,12 +2,13 @@
     build:
       context: dionaea
     ports:
-    - 20:20
-    - 21:21
-    - 135:135
-    - 445:445
-    - 1433:1433
-    - 3306:3306
+    - "21:21"
+    - "135:135"
+    - "445:445"
+    - "1433:1433"
+    - "3306:3306"
     volumes:
-    - {{dionaea_path}}:{{dionaea_path}}
+    - {{dionaea_path}}/logs:{{dionaea_path}}/logs
+    - {{dionaea_path}}/binaries:{{dionaea_path}}/binaries
+    - {{dionaea_path}}/bistreams:{{dionaea_path}}/bistreams
     restart: always

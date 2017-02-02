@@ -5,8 +5,10 @@ ENV REPO https://github.com/DinoTools/dionaea
 RUN apt-get update && apt-get install -y --no-install-recommends \
     autoconf \
     automake \
+    ca-certificates \
     check \
     cython3 \
+    git \
     libcurl4-openssl-dev \
     libemu-dev \
     libev-dev \
@@ -28,9 +30,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-yaml && \
   rm -rf /var/lib/apt/lists/*
 
-RUN adduser dionaea --home {{dionaea_path}} --shell /bin/false --disabled-password --no-create-home
+RUN mkdir /honeypot && \
+  addgroup --gid 9999 dionaea && \
+  adduser dionaea --home {{dionaea_path}} -gecos "" --uid 9999 --gid 9999 \
+  --shell /bin/false --disabled-password
 
-RUN mkdir /honeypot && git clone --depth 1 ${REPO} /tmp/dionaea && \
+RUN git clone --depth 1 ${REPO} /tmp/dionaea && \
   cd /tmp/dionaea && \
   autoreconf -vi && \
   ./configure \
@@ -47,11 +52,16 @@ RUN mkdir /honeypot && git clone --depth 1 ${REPO} /tmp/dionaea && \
     --with-nl-include=/usr/include/libnl3 \
     --with-nl-lib=/usr/lib && \
   make && make install && \
-  rm -rf /tmp/dionaea && \
-  chown -R dionaea:dionaea {{dionaea_path}}
+  mkdir -p {{dionaea_path}}/logs && \
+  mkdir -p {{dionaea_path}}/binaries && \
+  mkdir -p {{dionaea_path}}/bistreams && \
+  rm -rf {{dionaea_path}}/etc/dionaea && \
+  mkdir -p {{dionaea_path}}/etc/dionaea
 
-USER dionaea
 WORKDIR {{dionaea_path}}
+COPY [ "dionaea.cfg", "{{dionaea_path}}/" ]
+COPY [ "handlers/*", "{{dionaea_path}}/handlers/" ]
+COPY [ "services/*", "{{dionaea_path}}/services/" ]
 
-COPY [ "dionaea.cfg", "{{dionaea_path}}/etc/dionaea" ]
-CMD [ "{{dionaea_path}}/bin/dionaea", "-c", "{{dionaea_path}}/etc/dionaea/dionaea.cfg", "-u", "dionaea", "-g", "dionaea", "-w", "{{dionaea_path}}", "-p", "{{dionaea_path}}/var/run" ]
+RUN chown -R dionaea:dionaea {{dionaea_path}}
+CMD [ "{{dionaea_path}}/bin/dionaea", "-c", "{{dionaea_path}}/dionaea.cfg", "-u", "dionaea", "-g", "dionaea", "-w", "{{dionaea_path}}", "-p", "{{dionaea_path}}/var/run/dionaea.pid" ]

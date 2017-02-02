@@ -23,6 +23,7 @@
       state: latest
     with_items:
     - docker-engine
+    - p0f
 
   - name: python packages
     pip:

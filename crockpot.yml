@@ -17,6 +17,7 @@
     roles:
     - honeypot
     - honeypot.cowrie
+    - honeypot.dionaea
     - crockpot.logstash
     - crockpot.start
     become: true

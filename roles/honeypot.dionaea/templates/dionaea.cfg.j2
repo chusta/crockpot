@@ -1,13 +1,13 @@
 [dionaea]
 download.dir={{dionaea_path}}/binaries/
-modules=curl,python,nfq,emu,pcap
+modules=curl,python,emu,pcap
 processors=filter_streamdumper,filter_emu
 
 listen.mode=getifaddrs
 
 [logging]
 default.filename={{dionaea_path}}/logs/dionaea.log
-default.levels=all
+default.levels=info
 default.domains=*
 
 errors.filename={{dionaea_path}}/logs/dionaea-errors.log
@@ -16,7 +16,7 @@ errors.domains=*
 
 [processor.filter_emu]
 name=filter
-config.allow.0.protocols=smbd,epmapper,nfqmirrord,mssqld
+config.allow.0.protocols=smbd,epmapper,mssqld
 next=emu
 
 [processor.filter_streamdumper]
@@ -42,17 +42,14 @@ config.limits.listen=30
 config.limits.cpu=120
 config.limits.steps=1073741824
 
-[module.nfq]
-queue=2
-
 [module.nl]
 lookup_ethernet_addr=yes
 
 [module.python]
 imports=dionaea.log,dionaea.services,dionaea.ihandlers
 sys_paths=default
-service_configs={{dionaea_path}}/conf/services/*.yaml
-ihandler_configs={{dionaea_path}}/conf/handlers/*.yaml
+service_configs={{dionaea_path}}/services/*.yaml
+ihandler_configs={{dionaea_path}}/handlers/*.yaml
 
 [module.pcap]
 any.interface=any

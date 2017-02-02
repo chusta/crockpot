@@ -2,8 +2,9 @@
     build:
       context: cowrie
     ports:
-    - 2222:2222
-    - 2323:2323
+    - "2222:2222"
+    - "2323:2323"
     volumes:
-    - {{cowrie_path}}:{{cowrie_path}}
+    - {{cowrie_path}}/logs:{{cowrie_path}}/logs
+    - {{cowrie_path}}/download:{{cowrie_path}}/download
     restart: always

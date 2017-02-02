@@ -1,11 +1,8 @@
 #[collector]
 #localhost
 
-[honeypot:children]
-cowrie
+#[localhost]
+#localhost
 
-[cowrie]
-localhost
-
-[localhost]
+[honeypot]
 localhost

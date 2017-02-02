@@ -6,7 +6,7 @@
       dest: "/honeypot/docker-compose.yml"
 
   - name: docker-compose down
-    command: chdir=/honeypot docker-compose down
+    command: chdir=/honeypot docker-compose down --rmi all -v
 
   - name: docker-compose up
     command: chdir=/honeypot docker-compose up -d

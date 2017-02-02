@@ -5,10 +5,12 @@
       path: "{{item}}"
       state: directory
       owner: crockpot
+      group: crockpot
       mode: 0755
     with_items:
     - "{{cowrie_path}}"
     - "{{cowrie_path}}/logs"
+    - "{{cowrie_path}}/logs/tty"
     - "{{cowrie_path}}/download"
 
   - name: config templates
@@ -16,6 +18,8 @@
       src: "{{item.s}}"
       dest: "{{item.d}}"
       owner: crockpot
+      group: crockpot
+      mode: 0644
     with_items:
     - { "s": "docker/Dockerfile.j2", "d": "{{cowrie_path}}/Dockerfile" }
     - { "s": "cowrie.cfg.j2", "d": "{{cowrie_path}}/cowrie.cfg" }
@@ -29,3 +33,14 @@
   - name: add to honeypot list
     set_fact:
       honeypots: "{{honeypots}} + [ 'cowrie' ]"
+
+  - name: logstash directory
+    file:
+      path: /etc/logstash/conf.d
+      recurse: true
+      state: directory
+
+  - name: cowrie logstash configuration
+    template:
+      src: cowrie.log.conf.j2
+      dest: /etc/logstash/conf.d/cowrie.log.conf

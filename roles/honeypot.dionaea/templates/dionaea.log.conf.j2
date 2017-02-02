@@ -1,13 +1,13 @@
 input {
   file {
-    path => [ "{{cowrie_path}}/logs/cowrie.json" ]
+    path => [ "{{dionaea_path}}/logs/dionaea.log" ]
     codec => "json"
-    type = "cowrie"
+    type = "dionaea"
   }
 }
 
 filter {
-  if [type] == "cowrie" {
+  if [type] == "dionaea" {
     date { match => [ "timestamp", "ISO08601" ] }
   }
 }
