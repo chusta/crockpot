@@ -30,10 +30,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-yaml && \
   rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /honeypot && \
-  addgroup --gid 9999 dionaea && \
-  adduser dionaea --home {{dionaea_path}} -gecos "" --uid 9999 --gid 9999 \
-  --shell /bin/false --disabled-password
+RUN addgroup dionaea --gid 9999 && \
+    adduser dionaea --quiet --disabled-password --no-create-home --gecos "" \
+      --home {{dionaea_path}} --uid 9999 --gid 9999 --shell /bin/false
+
+RUN mkdir /honeypot
 
 RUN git clone --depth 1 ${REPO} /tmp/dionaea && \
   cd /tmp/dionaea && \
@@ -59,6 +60,7 @@ RUN git clone --depth 1 ${REPO} /tmp/dionaea && \
   mkdir -p {{dionaea_path}}/etc/dionaea
 
 WORKDIR {{dionaea_path}}
+
 COPY [ "dionaea.cfg", "{{dionaea_path}}/" ]
 COPY [ "handlers/*", "{{dionaea_path}}/handlers/" ]
 COPY [ "services/*", "{{dionaea_path}}/services/" ]

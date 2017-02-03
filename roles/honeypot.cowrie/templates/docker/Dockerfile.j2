@@ -15,8 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev && \
   rm -rf /var/lib/apt/lists/*
 
-RUN adduser cowrie --quiet --disabled-password --no-create-home \
-    --home {{cowrie_path}} --uid 9999 --shell /bin/false --gecos ""
+RUN addgroup cowrie --gid 9999 && \
+    adduser cowrie --quiet --disabled-password --no-create-home --gecos "" \
+      --home {{cowrie_path}} --uid 9999 --gid 9999 --shell /bin/false
 
 RUN mkdir /honeypot
 
