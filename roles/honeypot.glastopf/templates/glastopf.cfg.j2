@@ -13,7 +13,7 @@ keyfile =
 [logging]
 consolelog_enabled = False
 filelog_enabled = True
-logfile = log/glastopf.log
+logfile = {{glastopf_path}}/log/glastopf.log
 
 [dork-db]
 enabled = True
@@ -30,7 +30,7 @@ chan_files = glastopf.files
 ident = x8yer@hp1
 
 [main-database]
-enabled = True
+enabled = False
 connection_string = sqlite:///db/glastopf.db
 
 [surfcertids]
@@ -85,8 +85,7 @@ google_meta =
 bing_meta =
 
 [sensor]
-sensorid = 47b546b9-5bef-4fea-b425-a8724872a262
+sensorid =
 
 [profiler]
 enabled = False
-

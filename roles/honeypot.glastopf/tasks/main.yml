@@ -8,10 +8,8 @@
       group: crockpot
       mode: 0755
     with_items:
-    - "{{cowrie_path}}"
-    - "{{cowrie_path}}/logs"
-    - "{{cowrie_path}}/logs/tty"
-    - "{{cowrie_path}}/download"
+    - "{{glastopf_path}}"
+    - "{{glastopf_path}}/logs"
 
   - name: config templates
     template:
@@ -21,18 +19,18 @@
       group: crockpot
       mode: 0644
     with_items:
-    - { "s": "docker/Dockerfile.j2", "d": "{{cowrie_path}}/Dockerfile" }
-    - { "s": "cowrie.cfg.j2", "d": "{{cowrie_path}}/cowrie.cfg" }
+    - { "s": "docker/Dockerfile.j2", "d": "{{glastopf_path}}/Dockerfile" }
+    - { "s": "glastopf.cfg.j2", "d": "{{glastopf_path}}/glastopf.cfg" }
 
-  - name: create local docker-compose snippet (cowrie)
+  - name: create local docker-compose snippet (glastopf)
     local_action:
       module: template
       src: "docker/compose-snippet.j2"
-      dest: "{{playbook_dir}}/resources/cowrie.j2"
+      dest: "{{playbook_dir}}/resources/glastopf.j2"
 
   - name: add to honeypot list
     set_fact:
-      honeypots: "{{honeypots}} + [ 'cowrie' ]"
+      honeypots: "{{honeypots}} + [ 'glastopf' ]"
 
   - name: logstash directory
     file:
@@ -40,7 +38,7 @@
       recurse: true
       state: directory
 
-  - name: cowrie logstash configuration
+  - name: glastopf logstash configuration
     template:
-      src: cowrie.log.conf.j2
-      dest: /etc/logstash/conf.d/cowrie.log.conf
+      src: glastopf.log.conf.j2
+      dest: /etc/logstash/conf.d/glastopf.log.conf
