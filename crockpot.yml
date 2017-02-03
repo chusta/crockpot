@@ -1,11 +1,5 @@
 ---
 
-  - name: configure localhost
-    hosts: localhost
-    roles:
-    - localhost
-    become: true
-
   - name: configure collector
     hosts: collector
     roles:
@@ -14,10 +8,25 @@
 
   - name: configure honeypot
     hosts: honeypot
+    pre_tasks:
+    - name: resources/keys directory
+      local_action:
+        module: >
+          file path="{{playbook_dir}}/resources/keys"
+          state=directory recurse=yes
+    - name: create SSH tunnel keys
+      local_action:
+        module: >
+          shell echo "n" | ssh-keygen
+          -f "{{playbook_dir}}/resources/keys/{{item}}.key"
+          -t ed25519 -C crockpot -N "" -q
+        creates: "{{playbook_dir}}/resources/keys/{{item}}.key"
+      with_items: "{{groups['honeypot']}}"
     roles:
     - honeypot
     - honeypot.cowrie
     - honeypot.dionaea
+    - honeypot.glastopf
     - crockpot.logstash
     - crockpot.start
     become: true

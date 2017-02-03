@@ -1,9 +1,0 @@
----
-
-  - name: create SSH tunnel keys
-    local_action:
-      module: >
-        shell echo "n" | ssh-keygen
-        -f "{{playbook_dir}}/resources/tun.key"
-        -t ed25519 -C crockpot -N "" -q
-      creates: "{{playbook_dir}}/resources/tun.key"
