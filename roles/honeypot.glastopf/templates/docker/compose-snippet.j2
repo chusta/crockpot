@@ -1,0 +1,8 @@
+  glastopf:
+    build:
+      context: glastopf
+    ports:
+    - "80:80"
+    volumes:
+    - {{glastopf_path}}:{{glastopf_path}}
+    restart: always
