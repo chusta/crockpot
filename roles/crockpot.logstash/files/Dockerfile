@@ -13,12 +13,13 @@ RUN apt update && apt install -y \
 RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "${LOGSTASH_GPG}" && \
     gpg --export "${LOGSTASH_GPG}" > /etc/apt/trusted.gpg.d/elastic.gpg
 
-RUN echo 'deb https://artifacts.elastic.co/packages/5.x/apt stable main' > /etc/apt/sources.list.d/elastic.list
+RUN echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" > \
+      /etc/apt/sources.list.d/elastic.list
 
 RUN apt update && apt install -y logstash
 
-VOLUME ["/crockpot/logstash"]
+VOLUME [ "/crockpot/logstash" ]
 
 USER logstash
 
-CMD ["/usr/share/logstash/bin/logstash", "--path.settings", "/etc/logstash", "-f", "/crockpot/logstash"]
+CMD [ "/usr/share/logstash/bin/logstash", "--path.settings", "/etc/logstash" ]

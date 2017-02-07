@@ -1,5 +1,6 @@
-#[collector]
-#localhost
+[collector]
+base
 
 [honeypot]
-localhost
+hpot-01
+hpot-02

@@ -1,4 +1,44 @@
 ---
+  - name: create files
+    file:
+      state: touch
+      dest: "{{item}}"
+    with_items:
+    - .Xauthority
+    - .hushlogin
+    become: "{{ansible_user}}"
+
+  - name: create directories
+    file:
+      state: directory
+      recurse: true
+      path: "{{home}}/.ssh"
+    become: "{{ansible_user}}"
+
+  - name: check for local ssh keys
+    stat:
+      path: "{{home}}/.ssh/id_ed25519"
+    register: ssh_key
+
+  - name: create local ssh keys
+    command: >
+      ssh-keygen -f "{{home}}/.ssh/id_ed25519"
+      -t ed25519 -C "{{ansible_user}}" -N "" -q
+    args:
+      creates: "{{home}}/.ssh/id_ed25519"
+    become: "{{ansible_user}}"
+    when: not ssh_key.stat.exists
+
+  - name: create local authorized_keys
+    shell: chdir="{{home}}/.ssh" cat id_ed25519.pub >> authorized_keys
+    become: "{{ansible_user}}"
+    when: not ssh_key.stat.exists
+
+  - name: prompt
+    lineinfile:
+      dest: "{{home}}/.profile"
+      line: "PS1='\\h:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"
+    become: "{{ansible_user}}"
 
   - name: docker apt-key
     apt_key:
@@ -17,19 +57,47 @@
       cache_valid_time: 86400
       upgrade: full
 
+  - name: remove packages
+    apt:
+      name: "{{item}}"
+      state: absent
+    with_items:
+    - augeas-lenses
+    - bundler
+    - chef
+    - chef-zero
+    - erubis
+    - facter
+    - puppet-common
+    - ruby
+    - ruby1.9.1-dev
+
   - name: system packages
     apt:
       name: "{{item}}"
       state: latest
     with_items:
+    - ca-certificates
     - docker-engine
+    - git
+    - iftop
+    - libssl-dev
+    - lsof
     - p0f
+    - python-dev
+    - python-pip
+    - python-virtualenv
+    - tmux
+    - tree
+    - vim
+    - xsel
 
   - name: python packages
     pip:
       name: "{{item}}"
       state: latest
     with_items:
+    - pip
     - docker-compose
 
   - name: create group
@@ -53,7 +121,6 @@
       state: directory
     with_items:
     - "/honeypot"
-    - "/crockpot/conf"
 
   - name: download geolite2 db
     get_url:
@@ -69,7 +136,7 @@
   - name: docker-compose template (base)
     local_action:
       module: template
-      src: compose-base.j2 
+      src: compose-base.j2
       dest: "{{playbook_dir}}/resources/base.j2"
 
   - name: build honeypot list

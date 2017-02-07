@@ -1,8 +1,8 @@
 filter {
   if [sensor] {
-    mutate { update => { "sensor" => "{{sensor_name}}" } }
+    mutate { update => { "sensor" => "%{host}" } }
   } else {
-    mutate { add_field => { "sensor" => "{{sensor_name}}" } }
+    mutate { add_field => { "sensor" => "%{host}" } }
   }
 
   if [src_port] {
