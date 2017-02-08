@@ -60,7 +60,8 @@ Crockpot was tested on Ubuntu 16.04 but _should_ work on systems that can run do
 * Modify `hosts` and `crockpot.cfg` as needed.
 * Verify `./resources` for crockpot configs/artifacts.
 
-Once the above changes are made, run the `run.sh` script.
+#### Deploy
+Once the above changes are made, run the `deploy.sh` script.
 You'll be good to go! (hopefully)
 
 ## DevTest

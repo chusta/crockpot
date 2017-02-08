@@ -1,1 +1,1 @@
-# Cowrie
+# honeypot.cowrie

@@ -15,29 +15,10 @@
       path: "{{home}}/.ssh"
     become: "{{ansible_user}}"
 
-  - name: check for local ssh keys
-    stat:
-      path: "{{home}}/.ssh/id_ed25519"
-    register: ssh_key
-
-  - name: create local ssh keys
-    command: >
-      ssh-keygen -f "{{home}}/.ssh/id_ed25519"
-      -t ed25519 -C "{{ansible_user}}" -N "" -q
-    args:
-      creates: "{{home}}/.ssh/id_ed25519"
-    become: "{{ansible_user}}"
-    when: not ssh_key.stat.exists
-
-  - name: create local authorized_keys
-    shell: chdir="{{home}}/.ssh" cat id_ed25519.pub >> authorized_keys
-    become: "{{ansible_user}}"
-    when: not ssh_key.stat.exists
-
   - name: prompt
     lineinfile:
       dest: "{{home}}/.profile"
-      line: "PS1='\\h:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"
+      line: "PS1='\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"
     become: "{{ansible_user}}"
 
   - name: docker apt-key
@@ -103,8 +84,8 @@
   - name: create group
     group:
       name: crockpot
-      state: present
       gid: 9999
+      state: present
 
   - name: create user
     user:
@@ -120,7 +101,7 @@
       path: "{{item}}"
       state: directory
     with_items:
-    - "/honeypot"
+    - /honeypot
 
   - name: download geolite2 db
     get_url:
