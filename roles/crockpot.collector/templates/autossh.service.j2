@@ -5,7 +5,10 @@ Description=autossh tunnel to {{honeypot}}
 Type=simple
 User=crockpot
 Group=crockpot
-ExecStart=/usr/bin/autossh -R 9999:localhost:{{tun_port}} crockpot@{{honeypot}} -p 65535
+ExecStart=/usr/bin/autossh crockpot@{{honeypot}} \
+                            -p {{mgmt_port}} \
+                            -R 9999:localhost:{{tun_port}} \
+                            -i /crockpot/keys/{{honeypot}}.tun.key
 Restart=always
 TiemoutSec=infinity
 

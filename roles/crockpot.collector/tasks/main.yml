@@ -70,8 +70,10 @@
   - name: download geolite2 db
     get_url:
       url: http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
+      mode: 0600
       dest: /crockpot
       owner: crockpot
+      group: crockpot
     register: geodb
 
   - name: gunzip geolite2
@@ -102,16 +104,19 @@
 
   - name: copy ssh tunnel keys
     copy:
-      src: "{{playbook_dir}}/resources/keys/{{item}}.key"
-      dest: /crockpot/keys
+      src: "{{playbook_dir}}/resources/keys/{{item}}/tun.key"
+      dest: "/crockpot/keys/{{item}}.tun.key"
+      mode: 0600
+      owner: crockpot
+      group: crockpot
     with_items: "{{groups['honeypot']}}"
 
   - name: add ssh known_hosts
     known_hosts:
       path: /etc/ssh/ssh_known_hosts
       name: "{{item}}"
-      key: "{{item}} {{lookup('file', '{{playbook_dir}}/resources/sshd/{{item}}.key.pub')}}"
-    with_items: "{{groups['all']}}"
+      key: "{{item}} {{lookup('file', '{{playbook_dir}}/resources/keys/{{item}}/sshd.pub')}}"
+    with_items: "{{groups['honeypot']}}"
 
   - name: create sequence - 1
     set_fact:

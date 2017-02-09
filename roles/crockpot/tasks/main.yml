@@ -92,7 +92,7 @@
     user:
       name: crockpot
       group: crockpot
-      shell: /bin/false
+      shell: /bin/bash
       home: /crockpot
       uid: 9999
       state: present
@@ -104,30 +104,3 @@
     with_items:
     - /honeypot
     - /crockpot
-
-  - name: update sshd_config
-    template:
-      src: sshd_config.j2
-      dest: /etc/ssh/sshd_config
-    notify:
-    - restart sshd
-    when: config_ssh is defined
-
-  - name: update ssh service keys
-    copy:
-      src: "{{playbook_dir}}/resources/sshd/{{item.s}}"
-      dest: "/etc/ssh/{{item.d}}"
-    with_items:
-    - { "s": "{{inventory_hostname}}.key", "d": "ssh_host_ed25519_key" }
-    - { "s": "{{inventory_hostname}}.key.pub", "d": "ssh_host_ed25519_key.pub" }
-    notify:
-    - restart sshd
-    when: config_ssh is defined
-
-  - name: check reboot-required
-    stat:
-      path: /var/run/reboot-required
-    register: reboot_required
-    changed_when: reboot_required.stat.exists
-    notify:
-    - restart system

@@ -13,5 +13,5 @@
   - name: copy authorized_keys
     authorized_key:
       user: crockpot
-      key: "{{lookup('file', '{{playbook_dir}}/resources/keys/{{inventory_hostname}}.key.pub')}}"
+      key: "{{lookup('file', '{{key_path}}/tun.key.pub')}}"
       state: present
