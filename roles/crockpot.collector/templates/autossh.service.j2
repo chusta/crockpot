@@ -6,11 +6,11 @@ Type=simple
 User=crockpot
 Group=crockpot
 ExecStart=/usr/bin/autossh crockpot@{{honeypot}} \
-                            -p {{mgmt_port}} \
+                            -p {{mgmt_port}} -N \
                             -R 9999:localhost:{{tun_port}} \
                             -i /crockpot/keys/{{honeypot}}.tun.key
 Restart=always
-TiemoutSec=infinity
+TimeoutSec=infinity
 
 [Install]
 WantedBy=multi-user.target
