@@ -18,8 +18,6 @@ RUN echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" > \
 
 RUN apt update && apt install -y logstash
 
-VOLUME [ "/crockpot/logstash" ]
-
 USER logstash
 
 CMD [ "/usr/share/logstash/bin/logstash", "--path.settings", "/etc/logstash" ]
