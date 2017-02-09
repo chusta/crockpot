@@ -1,5 +1,27 @@
 ---
 
+  - name: create group
+    group:
+      name: crockpot
+      gid: 9999
+      state: present
+
+  - name: create user
+    user:
+      name: crockpot
+      group: crockpot
+      shell: /bin/false
+      home: /crockpot
+      uid: 9999
+      state: present
+
+  - name: honeypot directories
+    file:
+      path: "{{item}}"
+      state: directory
+    with_items:
+    - /honeypot
+
   - name: install elastic key
     apt_key:
       url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -35,6 +57,27 @@
     - logstash
     - kibana
 
+  - name: start elk
+    systemd:
+      name: "{{item}}"
+      state: started
+      enabled: yes
+    with_items:
+    - elasticsearch
+    - logstash
+    - kibana
+
+  - name: download geolite2 db
+    get_url:
+      url: http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
+      dest: /crockpot
+      owner: crockpot
+    register: geodb
+
+  - name: gunzip geolite2
+    command: gunzip -f /crockpot/GeoLite2-City.mmdb.gz
+    when: geodb.changed
+
   - name: locate old logstash configs
     find:
       path: /etc/logstash/conf.d
@@ -47,5 +90,48 @@
       state: absent
     with_items: "{{old_cfg.files}}"
 
-  - include: logstash.yml
+  - name: copy logstash config
+    copy:
+      src: collector.log.out.conf
+      dest: /etc/logstash/conf.d
+
+  - name: create keys directory
+    file:
+      path: /crockpot/keys
+      state: directory
+
+  - name: copy ssh tunnel keys
+    copy:
+      src: "{{playbook_dir}}/resources/keys/{{item}}.key"
+      dest: /crockpot/keys
+    with_items: "{{groups['honeypot']}}"
+
+  - name: add ssh known_hosts
+    known_hosts:
+      path: /etc/ssh/ssh_known_hosts
+      name: "{{item}}"
+      key: "{{item}} {{lookup('file', '{{playbook_dir}}/resources/sshd/{{item}}.key.pub')}}"
+    with_items: "{{groups['all']}}"
+
+  - name: create sequence - 1
+    set_fact:
+      tun_item: "{{item}}"
     with_sequence: start=65001 end="{{tunnel_count|int + 65000}}"
+    register: tun_result
+
+  - name: create sequence - 2
+    set_fact:
+      tuns: "{{tun_result.results|map(attribute='ansible_facts.tun_item')|list}}"
+
+  - include: tunnels.yml
+    with_together:
+    - "{{tuns}}"
+    - "{{groups['honeypot']}}"
+
+  - name: start ssh tunnels
+    systemd:
+      daemon_reload: yes
+      name: "autossh_{{item}}.service"
+      state: started
+    with_items:
+    - "{{groups['honeypot']}}"

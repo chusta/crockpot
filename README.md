@@ -42,6 +42,13 @@ A `honeypot.template` also exists which can be used to add custom honeypots.
 - Glastopf
 - Dionaea
 
+#### Files/Directories
+NOTE: Re-deploying honeypots will re-use keys in the `./resources` folder.
+
+`./resources/*` - contains docker configs for each honeypot
+`./resources/keys/*` - contains ssh tunnel keys
+`./resources/sshd/*` - contains sshd service keys
+
 #### TL;DR
 Crockpot deploys ephemeral honeypots with a central log collector.
 

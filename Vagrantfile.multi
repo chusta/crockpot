@@ -3,9 +3,21 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
-def script(vm_name)
-  '[ $(fgrep -c "127.1.1.1") -eq 0 ] && echo "127.1.1.1 #{vm_name}">>/etc/hosts'
+HOSTS = {
+  "base"   => "192.168.255.100",
+  "hpot-1" => "192.168.255.101",
+  "hpot-2" => "192.168.255.102"
+}
+
+def shell_script(hosts)
+  cmd = []
+  hosts.each do |name, ip|
+    cmd << "[ $(fgrep -c '#{ip}') -eq 0 ] && echo '#{ip} #{name}'>>/etc/hosts"
+  end
+  cmd << "apt-get -y install aptitude python"
+  cmd.join(";")
 end
+
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -20,48 +32,54 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.gui = false
   end
 
-  config.vm.provision "shell", inline: "apt-get -y install aptitude python"
+  # vagrant ssh
+  #config.vm.network "forwarded_port", guest: SSH, host: 22000, id: "ssh", auto_correct: true
+
+  config.vm.provision "shell", inline: shell_script(HOSTS)
 
   config.vm.define "hpot-1" do |hpot|
-    hpot.vm.provision "shell", inline: script("hpot-1")
-    hpot.vm.network "private_network", ip: "192.168.255.101"
+    hpot.vm.network "private_network", ip: HOSTS["hpot-1"]
 
-    hpot.vm.network "forwarded_port", guest: 21, host: 10021   # dionaea-ftp
-    hpot.vm.network "forwarded_port", guest: 22, host: 10022   # cowrie-ssh
-    hpot.vm.network "forwarded_port", guest: 23, host: 10023   # cowrie-telnet
-    hpot.vm.network "forwarded_port", guest: 80, host: 10080   # glastopf-http
-    hpot.vm.network "forwarded_port", guest: 135, host: 10135   # dionaea-epmap
-    hpot.vm.network "forwarded_port", guest: 445, host: 10445   # dionaea-smb
-    hpot.vm.network "forwarded_port", guest: 1433, host: 11433   # dionaea-mssql
-    hpot.vm.network "forwarded_port", guest: 3306, host: 13306   # dionaea-mysql
+    hpot.vm.network "forwarded_port", guest: 21,   host: 10021  # dionaea-ftp
+    hpot.vm.network "forwarded_port", guest: 80,   host: 10080  # glastopf-http
+    hpot.vm.network "forwarded_port", guest: 135,  host: 10135  # dionaea-epmap
+    hpot.vm.network "forwarded_port", guest: 445,  host: 10445  # dionaea-smb
+    hpot.vm.network "forwarded_port", guest: 1433, host: 11433  # dionaea-mssql
+    hpot.vm.network "forwarded_port", guest: 2222, host: 10022  # cowrie-ssh
+    hpot.vm.network "forwarded_port", guest: 2323, host: 10023  # cowrie-telnet
+    hpot.vm.network "forwarded_port", guest: 3306, host: 13306  # dionaea-mysql
   end
 
   config.vm.define "hpot-2" do |hpot|
-    hpot.vm.provision "shell", inline: script("hpot-2")
-    hpot.vm.network "private_network", ip: "192.168.255.102"
+    hpot.vm.network "private_network", ip: HOSTS["hpot-2"]
 
-    hpot.vm.network "forwarded_port", guest: 21, host: 20021   # dionaea-ftp
-    hpot.vm.network "forwarded_port", guest: 22, host: 20022   # cowrie-ssh
-    hpot.vm.network "forwarded_port", guest: 23, host: 20023   # cowrie-telnet
-    hpot.vm.network "forwarded_port", guest: 80, host: 20080   # glastopf-http
-    hpot.vm.network "forwarded_port", guest: 135, host: 20135   # dionaea-epmap
-    hpot.vm.network "forwarded_port", guest: 445, host: 20445   # dionaea-smb
-    hpot.vm.network "forwarded_port", guest: 1433, host: 21433   # dionaea-mssql
-    hpot.vm.network "forwarded_port", guest: 3306, host: 23306   # dionaea-mysql
+    hpot.vm.network "forwarded_port", guest: 21,   host: 20021  # dionaea-ftp
+    hpot.vm.network "forwarded_port", guest: 80,   host: 20080  # glastopf-http
+    hpot.vm.network "forwarded_port", guest: 135,  host: 20135  # dionaea-epmap
+    hpot.vm.network "forwarded_port", guest: 445,  host: 20445  # dionaea-smb
+    hpot.vm.network "forwarded_port", guest: 1433, host: 21433  # dionaea-mssql
+    hpot.vm.network "forwarded_port", guest: 2222, host: 20022  # cowrie-ssh
+    hpot.vm.network "forwarded_port", guest: 2323, host: 20023  # cowrie-telnet
+    hpot.vm.network "forwarded_port", guest: 3306, host: 23306  # dionaea-mysql
   end
 
   config.vm.define "base", primary: true do |base|
-    base.vm.provision "shell", inline: script("base")
-    base.vm.network "private_network", ip: "192.168.255.100"
+    base.vm.network "private_network", ip: HOSTS["base"]
 
-    # parallel provision at the very end
+    base.vm.provider "virtualbox" do |vbase|
+      vbase.memory = "4096"
+    end
+
+    # parallel provisioning at the very end
     base.vm.provision "ansible" do |ansible|
       ansible.limit = "all"
       ansible.playbook = "crockpot.yml"
       ansible.verbose = false
       ansible.sudo = true
 
-      ansible.extra_vars = { "ansible_user" => config.ssh.username }
+      ansible.extra_vars = {
+        "ansible_user" => config.ssh.username
+      }
       ansible.groups = {
         "collector" => [ "base" ],
         "honeypot"  => [ "hpot-1", "hpot-2" ]

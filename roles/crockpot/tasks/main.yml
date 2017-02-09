@@ -1,0 +1,133 @@
+---
+
+  - name: create files
+    file:
+      state: touch
+      dest: "{{item}}"
+    with_items:
+    - .Xauthority
+    - .hushlogin
+    become: "{{ansible_user}}"
+
+  - name: create directories
+    file:
+      state: directory
+      recurse: true
+      path: "{{home}}/.ssh"
+    become: "{{ansible_user}}"
+
+  - name: prompt
+    lineinfile:
+      dest: "{{home}}/.profile"
+      line: "PS1='\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"
+    become: "{{ansible_user}}"
+
+  - name: docker apt-key
+    apt_key:
+      keyserver: hkp://ha.pool.sks-keyservers.net:80
+      id: 58118E89F3A912897C070ADBF76221572C52609D
+      state: present
+
+  - name: docker apt-repo
+    apt_repository:
+      repo: "deb https://apt.dockerproject.org/repo ubuntu-xenial main"
+      state: present
+
+  - name: update system
+    apt:
+      update_cache: yes
+      cache_valid_time: 86400
+      upgrade: full
+
+  - name: remove packages
+    apt:
+      name: "{{item}}"
+      state: absent
+    with_items:
+    - augeas-lenses
+    - bundler
+    - chef
+    - chef-zero
+    - erubis
+    - facter
+    - puppet-common
+    - ruby
+    - ruby1.9.1-dev
+
+  - name: system packages
+    apt:
+      name: "{{item}}"
+      state: latest
+    with_items:
+    - ca-certificates
+    - docker-engine
+    - git
+    - iftop
+    - libssl-dev
+    - lsof
+    - p0f
+    - python-dev
+    - python-pip
+    - python-virtualenv
+    - tmux
+    - tree
+    - vim
+    - xsel
+
+  - name: python packages
+    pip:
+      name: "{{item}}"
+      state: latest
+    with_items:
+    - pip
+    - docker-compose
+
+  - name: create group
+    group:
+      name: crockpot
+      gid: 9999
+      state: present
+
+  - name: create user
+    user:
+      name: crockpot
+      group: crockpot
+      shell: /bin/false
+      home: /crockpot
+      uid: 9999
+      state: present
+
+  - name: honeypot directories
+    file:
+      path: "{{item}}"
+      state: directory
+    with_items:
+    - /honeypot
+    - /crockpot
+
+  - name: update sshd_config
+    template:
+      src: sshd_config.j2
+      dest: /etc/ssh/sshd_config
+    notify:
+    - restart sshd
+    when: config_ssh is defined
+
+  - name: update ssh service keys
+    copy:
+      src: "{{playbook_dir}}/resources/sshd/{{item.s}}"
+      dest: "/etc/ssh/{{item.d}}"
+    with_items:
+    - { "s": "{{inventory_hostname}}.key", "d": "ssh_host_ed25519_key" }
+    - { "s": "{{inventory_hostname}}.key.pub", "d": "ssh_host_ed25519_key.pub" }
+    notify:
+    - restart sshd
+    when: config_ssh is defined
+
+  - name: check reboot-required
+    stat:
+      path: /var/run/reboot-required
+    register: reboot_required
+    changed_when: reboot_required.stat.exists
+    notify:
+    - restart system

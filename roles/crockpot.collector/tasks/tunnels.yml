@@ -1,0 +1,19 @@
+---
+
+  - name: set tunnel port
+    set_fact:
+      tun_port: "{{item.0}}"
+
+  - name: set honeypot
+    set_fact:
+      honeypot: "{{item.1}}"
+
+  - name: logstash input conf
+    template:
+      src: collector.log.in.conf.j2
+      dest: /etc/logstash/conf.d/ssh_{{tun_port}}.conf
+
+  - name: create autossh.service
+    template:
+      src: autossh.service.j2
+      dest: /etc/systemd/system/autossh_{{honeypot}}.service

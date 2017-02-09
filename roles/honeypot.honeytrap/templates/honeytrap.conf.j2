@@ -1,0 +1,77 @@
+// log to this file
+logfile   = "/opt/honeytrap/honeytrap.log"
+
+// store process ID in this file
+pidfile   = "/var/run/honeytrap.pid"
+
+/* where to look for default responses
+ * these are sent for connections handled in "normal mode" */
+response_dir  = "/opt/honeytrap/etc/honeytrap/responses"
+
+// replace rfc1918 IP addresses with attacking IP address
+replace_private_ips = "no"
+
+// bind dynamic servers to a specific address
+bind_address = {{ansible_default_ipv4["address"]}}
+
+user  = "nobody"
+group = "nogroup"
+
+// do not read more than 20 MB - used to prevent DoS attacks
+read_limit = "20971520"
+
+
+/* ----- plugin stuff below ----- */
+
+/* where to look for plugins
+   needs to be set before loading plugins */
+plugin_dir  = "/opt/honeytrap/etc/honeytrap/plugins"
+
+
+// include a plugin via plugin-[ModuleName] = ""
+
+// plugin-magicPE = ""
+plugin-ftpDownload = ""
+plugin-tftpDownload = ""
+plugin-b64Decode = ""
+plugin-deUnicode = ""
+plugin-vncDownload = ""
+
+
+// store attacks on disk
+plugin-SaveFile = {
+  attacks_dir = "/opt/honeytrap/var/honeytrap/attacks"
+  downloads_dir = "/opt/honeytrap/var/honeytrap/downloads"
+}
+
+
+// plugin for shellcode detection and emulation
+/*
+plugin-cpuEmu = {
+  execute_shellcode = "no"
+  createprocess_cmd = "/bin/sh -c \"cd /opt/honeytrap-libemu/.wine/drive_c/windows/system32; WINEPREFIX='/opt/honeytrap-libemu/.wine/' WINEDEBUG='-all' wine 'c:\\windows\\system32\\cmd_orig.exe'\""
+}
+*/
+
+
+// calculate locality sensitive hashes
+/*
+plugin-SpamSum = {
+  md5sum_sigfile  = "/opt/honeytrap/md5sum.sigs"
+  spamsum_sigfile = "/opt/honeytrap/spamsum.sigs"
+}
+*/
+
+// log attacker connection information to a separate file, one entry per line
+plugin-logAttacker = {
+  logfile = "/opt/honeytrap/attackers.log"
+}
+
+// log attack details in JSON format
+plugin-logJSON = {
+  logfile = "/opt/honeytrap/attackers.json"
+}
+
+/* ----- port mode configuration below ----- */
+
+portconf_default = "normal"

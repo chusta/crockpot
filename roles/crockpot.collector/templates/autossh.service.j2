@@ -1,11 +1,11 @@
 [Unit]
-Description=SSH tunnel to {{honeypot_name}}
+Description=autossh tunnel to {{honeypot}}
 
 [Service]
 Type=simple
 User=crockpot
 Group=crockpot
-ExecStart=/usr/bin/autossh -R 9999:localhost:{{port}} {{crockpot}}@{{addr}} -p65535
+ExecStart=/usr/bin/autossh -R 9999:localhost:{{tun_port}} crockpot@{{honeypot}} -p 65535
 Restart=always
 TiemoutSec=infinity
 

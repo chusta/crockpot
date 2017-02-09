@@ -1,6 +1,1 @@
 ---
-
-  - name: create data directory
-    file:
-      path: /honeypot
-      state: directory

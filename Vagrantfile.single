@@ -3,8 +3,17 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
-def script(vm_name)
-  '[ $(fgrep -c "127.1.1.1") -eq 0 ] && echo "127.1.1.1 #{vm_name}">>/etc/hosts'
+hosts = {
+  "base"   => "192.168.255.100"
+}
+
+def shell_script(hosts)
+  cmd = []
+  hosts.each do |name, ip|
+    cmd << "[ $(fgrep -c '#{ip}') -eq 0 ] && echo '#{ip} #{name}'>>/etc/hosts"
+  end
+  cmd << "apt-get -y install aptitude python"
+  cmd.join(";")
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -15,24 +24,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.insert_key = true
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "2048"
+    vb.memory = "4096"
     vb.cpus = "1"
     vb.gui = false
   end
 
-  config.vm.provision "shell", inline: "apt-get -y install aptitude python"
+  config.vm.provision "shell", inline: shell_script(hosts)
 
-  config.vm.define "crockpot" do |hpot|
-    hpot.vm.provision "shell", inline: script("crockpot")
-
-    hpot.vm.network "forwarded_port", guest: 21, host: 10021   # dionaea-ftp
-    hpot.vm.network "forwarded_port", guest: 22, host: 10022   # cowrie-ssh
-    hpot.vm.network "forwarded_port", guest: 23, host: 10023   # cowrie-telnet
-    hpot.vm.network "forwarded_port", guest: 80, host: 10080   # glastopf-http
+  config.vm.define "base" do |hpot|
+    hpot.vm.network "forwarded_port", guest: 21, host: 10021    # dionaea-ftp
+    hpot.vm.network "forwarded_port", guest: 22, host: 10022    # cowrie-ssh
+    hpot.vm.network "forwarded_port", guest: 23, host: 10023    # cowrie-telnet
+    hpot.vm.network "forwarded_port", guest: 80, host: 10080    # glastopf-http
     hpot.vm.network "forwarded_port", guest: 135, host: 10135   # dionaea-epmap
     hpot.vm.network "forwarded_port", guest: 445, host: 10445   # dionaea-smb
-    hpot.vm.network "forwarded_port", guest: 1433, host: 11433   # dionaea-mssql
-    hpot.vm.network "forwarded_port", guest: 3306, host: 13306   # dionaea-mysql
+    hpot.vm.network "forwarded_port", guest: 1433, host: 11433  # dionaea-mssql
+    hpot.vm.network "forwarded_port", guest: 3306, host: 13306  # dionaea-mysql
   end
 
   config.vm.provision "ansible" do |ansible|
@@ -43,8 +50,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     ansible.extra_vars = { "ansible_user" => config.ssh.username }
     ansible.groups = {
-        "collector" => [ "crockpot" ],
-        "honeypot"  => [ "crockpot" ]
+        "collector" => [ "base" ],
+        "honeypot"  => [ "base" ]
     }
   end
 

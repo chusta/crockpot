@@ -1,0 +1,11 @@
+  honeytrap:
+    build:
+      context: honeytrap
+    network_mode: "host"
+    volumes:
+    - {{honeytrap_path}}/logs:{{honeytrap_path}}/logs
+    depends_on:
+    {% for hpot in honeypots %}
+    - {{ hpot }}
+    {% endfor %}
+    restart: always

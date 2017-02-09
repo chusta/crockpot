@@ -1,35 +1,52 @@
 ---
 
-  - name: configure collector
-    hosts: collector
-
-    roles:
-    - crockpot.collector
-    become: true
-
-  - name: configure honeypot
-    hosts: honeypot
-
+  - name: prerequisites
+    hosts: all
     pre_tasks:
-    - name: resources/keys directory
+    - name: tunnel keys | create path
       local_action:
         module: >
           file path="{{playbook_dir}}/resources/keys"
           state=directory recurse=yes
-
-    - name: create SSH tunnel keys
+      become: false
+    - name: tunnel keys | create keys
       local_action:
         module: >
-          command ssh-keygen
+          shell [ ! -e "{{playbook_dir}}/resources/keys/{{item}}.key" ] &&
           -f "{{playbook_dir}}/resources/keys/{{item}}.key"
           -t ed25519 -C crockpot -N "" -q
         creates: "{{playbook_dir}}/resources/keys/{{item}}.key"
-      with_items: "{{groups['honeypot']}}"
+      with_items: "{{groups['all']}}"
+      become: false
+    - name: service keys | create path
+      local_action:
+        module: >
+          file path="{{playbook_dir}}/resources/sshd"
+          state=directory recurse=yes
+      become: false
+    - name: service keys | create keys
+      local_action:
+        module: >
+          shell [ ! -e "{{playbook_dir}}/resources/sshd/{{item}}.key" ] &&
+          ssh-keygen -f "{{playbook_dir}}/resources/sshd/{{item}}.key"
+          -t ed25519 -C crockpot -N "" -q
+        creates: "{{playbook_dir}}/resources/sshd/{{item}}.key"
+      with_items: "{{groups['all']}}"
+      become: false
+    roles:
+    - crockpot
 
+  - name: collector
+    hosts: collector
+    roles:
+    - crockpot.collector
+
+  - name: honeypot
+    hosts: honeypot
     roles:
     - honeypot
     - honeypot.cowrie
     - honeypot.dionaea
     - honeypot.glastopf
+    - crockpot.logstash
     - crockpot.start
-    become: true
