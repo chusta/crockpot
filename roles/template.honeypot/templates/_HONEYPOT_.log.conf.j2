@@ -1,0 +1,13 @@
+input {
+  file {
+    path => [ "{{_HONEYPOT__path}}/logs/_HONEYPOT_.json" ]
+    codec => "json"
+    type = "cowrie"
+  }
+}
+
+filter {
+  if [type] == "_HONEYPOT_" {
+    date { match => [ "timestamp", "ISO08601" ] }
+  }
+}

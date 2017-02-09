@@ -53,9 +53,9 @@ NOTE: Re-deploying honeypots will re-use keys in the `./resources` folder.
 Crockpot deploys ephemeral honeypots with a central log collector.
 
 ## Installation
-Crockpot was tested on Ubuntu 16.04 but _should_ work on systems that can run docker.
 
 #### Requirements
+* Ubuntu 16.04
 * Install [Ansible](https://www.ansible.com/)
 * (optional) Install [Vagrant](https://www.vagrantup.com/)
 * (optional) Install [Virtualbox](https://www.virtualbox.org/wiki/Linux_Downloads)
@@ -63,9 +63,10 @@ Crockpot was tested on Ubuntu 16.04 but _should_ work on systems that can run do
 #### Configuration
 * Enable remote systems for ansible management.
   - Use `./scripts/bootstrap.sh` for Ubuntu systems.
+  - Change SSHd to non-conflicting port (ex: 65535)
 * Add SSH host keys for remote systems.
-* Modify `hosts` and `crockpot.cfg` as needed.
-* Verify `./resources` for crockpot configs/artifacts.
+* Add hosts into `hosts` file.
+* Verify `./resources` for existing Crockpot configs/artifacts.
 
 #### Deploy
 Once the above changes are made, run the `deploy.sh` script.

@@ -1,0 +1,43 @@
+---
+
+  - name: build directories
+    file:
+      path: "{{item}}"
+      state: directory
+      owner: crockpot
+      group: crockpot
+      mode: 0755
+    with_items:
+    - "{{_HONEYPOT__path}}"
+
+  - name: config templates
+    template:
+      src: "{{item.s}}"
+      dest: "{{item.d}}"
+      owner: crockpot
+      group: crockpot
+      mode: 0644
+    with_items:
+    - { "s": "docker/Dockerfile.j2", "d": "{{_HONEYPOT__path}}/Dockerfile" }
+    - { "s": "_HONEYPOT_.cfg.j2", "d": "{{_HONEYPOT__path}}/_HONEYPOT_.cfg" }
+
+  - name: create local docker-compose snippet (_HONEYPOT_)
+    local_action:
+      module: template
+      src: "docker/compose-snippet.j2"
+      dest: "{{playbook_dir}}/resources/_HONEYPOT_.j2"
+
+  - name: add to honeypot list
+    set_fact:
+      honeypots: "{{honeypots}} + [ '_HONEYPOT_' ]"
+
+  - name: logstash directory
+    file:
+      path: /etc/logstash/conf.d
+      recurse: true
+      state: directory
+
+  - name: _HONEYPOT_ logstash configuration
+    template:
+      src: cowrie.log.conf.j2
+      dest: /etc/logstash/conf.d/_HONEYPOT_.log.conf
