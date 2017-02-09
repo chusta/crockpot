@@ -135,8 +135,9 @@
 
   - name: start ssh tunnels
     systemd:
+      name: "autossh_{{item}}"
       daemon_reload: yes
-      name: "autossh_{{item}}.service"
+      enabled: yes
       state: started
     with_items:
     - "{{groups['honeypot']}}"
