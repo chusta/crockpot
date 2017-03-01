@@ -5,12 +5,16 @@ Description=autossh tunnel to {{honeypot}}
 Type=simple
 User=crockpot
 Group=crockpot
+ExecStartPre=/usr/lib/systemd/systemd-networkd-wait-only --interface {{iface}}
 ExecStart=/usr/bin/autossh crockpot@{{honeypot}} \
                             -p {{mgmt_port}} -N \
                             -R 9999:localhost:{{tun_port}} \
                             -i /crockpot/keys/{{honeypot}}.tun.key
 Restart=always
-TimeoutSec=infinity
+TimeoutSec=30
+RestartSec=30
+StartLimitInterval=200
+StartLimitBurst=5
 
 [Install]
 WantedBy=multi-user.target

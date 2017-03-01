@@ -70,7 +70,7 @@
   - name: download geolite2 db
     get_url:
       url: http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
-      mode: 0600
+      mode: 0644
       dest: /crockpot
       owner: crockpot
       group: crockpot
@@ -113,10 +113,10 @@
 
   - name: add ssh known_hosts
     known_hosts:
-      path: /etc/ssh/ssh_known_hosts
       name: "{{item}}"
       key: "{{item}} {{lookup('file', '{{playbook_dir}}/resources/keys/{{item}}/sshd.pub')}}"
     with_items: "{{groups['honeypot']}}"
+    become: crockpot
 
   - name: create sequence - 1
     set_fact:
