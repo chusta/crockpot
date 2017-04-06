@@ -37,7 +37,6 @@ Use cases:
 - At this point, it can be passed to another system (SIEM) or analyzed (Kibana).
 
 #### Honeypots
-A `honeypot.template` also exists which can be used to add custom honeypots.
 - Cowrie
 - Glastopf
 - Dionaea
