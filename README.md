@@ -85,8 +85,8 @@ autossh -M 0 USER@COLLECTOR_ADDR -L 25601:localhost:5601 -N &
 autossh -M 0 USER@COLLECTOR_ADDR -L 29200:localhost:9200 -N &
 ```
 
-## DevTest
-Vagrant configuration exists primarily for testing.
+## Vagrant
+Vagrant configuration exists primarily for development and/or testing.
 ```
 vagrant up
 ```
