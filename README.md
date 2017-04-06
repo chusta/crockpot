@@ -19,13 +19,13 @@ Use cases:
 * external/dmz honeypots
 * internal network canaries
 ```
-          HONEYPOT
-+------+------+------+------+
-| hpot | hpot | hpot | hpot |             COLLECTOR
+          HONEYPOT                        COLLECTOR
 +------+------+------+------+       +--------------------+
+| hpot | hpot | hpot | hpot |       |       kibana       |
++------+------+------+------+       +--------------^-----+
 |         /honeypot         |       |   elasticsearch    |
 +------v------+-------------+       +---------+----^-----+
-|  logstash   >   ssh-tun   | <---- | ssh-tun > logstash |
+|  logstash   >   ssh-tun   | <---> | ssh-tun > logstash |
 +-------------+-------------+       +---------+----------+
 ```
 
@@ -66,7 +66,11 @@ NOTE: Re-deploying honeypots will re-use keys in the `./resources` folder.
 * Verify/backup `./resources` for existing Crockpot configs/artifacts.
 
 #### Deploy
-Once the above changes are made, run the `deploy.sh` script.
+Once the above changes are made, run:
+```
+ansible-playbook crockpot.yml
+```
+
 You'll be good to go! (hopefully)
 
 ## Usage
