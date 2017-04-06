@@ -9,7 +9,3 @@ PACKAGES=(
 )
 
 apt-get install -y "${PACKAGES[@]}"
-
-SELF=$(who am i|cut -f1 -d" ")
-SUDOERS_LINE="$SELF ALL=(ALL) NOPASSWD:ALL"
-grep -q "$SUDOERS_LINE" /etc/sudoers || echo "$SUDOERS_LINE" >> /etc/sudoers

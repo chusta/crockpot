@@ -16,8 +16,8 @@ container-based, the idea is to have ephemeral honeypots on physical boxes,
 with the exception of a centralized node, which houses the aggregated log data.
 
 Use cases:
-- external/dmz honeypots
-- internal network canaries
+* external/dmz honeypots
+* internal network canaries
 ```
           HONEYPOT
 +------+------+------+------+
@@ -30,26 +30,22 @@ Use cases:
 ```
 
 #### Transport
-- During provisioning SSH keys are generated for tunnels initiated by collector.
-- Honeypot's logstash exports all log contents to its local tunnel endpoint.
-- Collector's logstash ingests honeypot exports through its local tunnel endpoint.
-- Collector logstash aggregates multiple (honeypot) inputs into elasticsearch.
-- At this point, it can be passed to another system (SIEM) or analyzed (Kibana).
+* During provisioning SSH keys are generated for tunnels initiated by collector.
+* Honeypot's logstash exports all log contents to its local tunnel endpoint.
+* Collector's logstash ingests honeypot exports through its local tunnel endpoint.
+* Collector logstash aggregates multiple (honeypot) inputs into elasticsearch.
+* At this point, it can be passed to another system (SIEM) or analyzed (Kibana).
 
 #### Honeypots
-- Cowrie
-- Glastopf
-- Dionaea
+* Cowrie
+* Glastopf
+* Dionaea
+* HoneyTrap
 
 #### Files/Directories
+* `./resources/*` - contains docker configs for each honeypot.
+* `./resources/keys/HOST/*` - SSH auth and tunnel keys.
 NOTE: Re-deploying honeypots will re-use keys in the `./resources` folder.
-
-`./resources/*` - contains docker configs for each honeypot
-`./resources/keys/*` - contains ssh tunnel keys
-`./resources/sshd/*` - contains sshd service keys
-
-#### TL;DR
-Crockpot deploys ephemeral honeypots with a central log collector.
 
 ## Installation
 
@@ -57,7 +53,9 @@ Crockpot deploys ephemeral honeypots with a central log collector.
 * Ubuntu 16.04
 * Install [Ansible](https://www.ansible.com/)
 * (optional) Install [Vagrant](https://www.vagrantup.com/)
-* (optional) Install [Virtualbox](https://www.virtualbox.org/wiki/Linux_Downloads)
+```
+./scripts/install.sh
+```
 
 #### Configuration
 * Enable remote systems for ansible management.
@@ -65,7 +63,7 @@ Crockpot deploys ephemeral honeypots with a central log collector.
   - Change SSHd to non-conflicting port (ex: 65535)
 * Add SSH host keys for remote systems.
 * Add hosts into `hosts` file.
-* Verify `./resources` for existing Crockpot configs/artifacts.
+* Verify/backup `./resources` for existing Crockpot configs/artifacts.
 
 #### Deploy
 Once the above changes are made, run the `deploy.sh` script.
@@ -77,18 +75,16 @@ You'll be good to go! (hopefully)
 To view the Kibana dashboard, an SSH-tunnel must be established for port forwarding.
 
 * For persistent access, install `autossh`
+Example: SSH forwarding for Kibana (TCP/5601) and Elasticsearch (TCP/9200)
 ```
-# kibana dashboard
 autossh -M 0 USER@COLLECTOR_ADDR -L 25601:localhost:5601 -N &
-
-# elasticsearch
 autossh -M 0 USER@COLLECTOR_ADDR -L 29200:localhost:9200 -N &
 ```
 
 ## DevTest
 Vagrant configuration exists primarily for testing.
-
-* `vagrant up`
-
+```
+vagrant up
+```
 This process attempts to standardize the production and dev/test
 environments, making it simpler to make and validate any changes.
