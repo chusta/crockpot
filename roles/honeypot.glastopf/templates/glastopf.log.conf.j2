@@ -1,14 +1,16 @@
 input {
   file {
     path => [ "{{glastopf_path}}/logs/glastopf.log" ]
-    type = "glastopf"
+    type => "glastopf"
   }
 }
 
 filter {
   if [type] == "glastopf" {
     grok {
-      match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} \(glastopf\.glastopf\) %{IPORHOST:src_ip} requested %{WORD:http_method} %{URIPATHPARAM:http_path} on %{IPORHOST:dst_ip}:%{NUMBER:dst_port}"
+      match => {
+        "message" => "%{TIMESTAMP_ISO8601:timestamp} (glastopf.glastopf) %{IPORHOST:src_ip} requested %{WORD:http_method} %{URIPATHPARAM:http_path} on %{IPORHOST:dst_ip}:%{NUMBER:dst_port}"
+      }
     }
   }
 }

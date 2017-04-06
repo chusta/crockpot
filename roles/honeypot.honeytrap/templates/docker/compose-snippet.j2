@@ -5,7 +5,9 @@
     volumes:
     - {{honeytrap_path}}/logs:{{honeytrap_path}}/logs
     depends_on:
-    {% for hpot in honeypots %}
+    {% for hpot in honeypots -%}
+    {% if hpot != "base" %}
     - {{ hpot }}
+    {% endif %}
     {% endfor %}
     restart: always

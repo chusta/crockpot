@@ -10,8 +10,34 @@
     set_fact:
       honeypots: [ "base" ]
 
+  - name: create .ssh path
+    file:
+      state: directory
+      path: /crockpot/.ssh
+      owner: crockpot
+      group: crockpot
+      mode: 0700
+
   - name: copy authorized_keys
-    authorized_key:
-      user: crockpot
-      key: "{{lookup('file', '{{key_path}}/tun.key.pub')}}"
-      state: present
+    copy:
+      src: "{{key_path}}/tun.key.pub"
+      dest: /crockpot/.ssh/authorized_keys
+      mode: 0600
+      owner: crockpot
+      group: crockpot
+
+  - name: copy logstash.conf
+    template:
+      src: logstash.conf.j2
+      dest: /etc/logstash/conf.d/logstash.conf
+
+  - name: install logstash
+    apt:
+      name: logstash
+      state: latest
+
+  - name: start logstash
+    systemd:
+      name: logstash
+      state: started
+      enabled: yes

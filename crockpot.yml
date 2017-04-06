@@ -2,47 +2,9 @@
 
   - name: prerequisites
     hosts: all
-    pre_tasks:
-    - name: ssh tunnel | set key_path
-      set_fact:
-        key_path: "{{playbook_dir}}/resources/keys/{{inventory_hostname}}"
-    - name: ssh tunnel | create path
-      local_action: file path="{{key_path}}" state=directory recurse=yes
-      become: false
-    - name: ssh tunnel | create keys
-      local_action: >
-        shell ssh-keygen -f "{{key_path}}/tun.key" -t ed25519 -C crockpot -N "" -q
-      args:
-        creates: "{{key_path}}/tun.key"
-      become: false
-    - name: ssh | retrieve host keys
-      fetch:
-        src: /etc/ssh/ssh_host_ed25519_key.pub
-        dest: "{{key_path}}/sshd.pub"
-        flat: yes
-      become: false
     roles:
+    - resources
     - crockpot
-
-  - name: collector
-    hosts: collector
-    pre_tasks:
-    - name: ssh | set key_path
-      set_fact:
-        key_path: "{{playbook_dir}}/resources/keys"
-    - name: ssh | old known hosts
-      file:
-        path: /etc/ssh/ssh_known_hosts
-        state: absent
-    - name: ssh | add known hosts
-      known_hosts:
-        path: /etc/ssh/ssh_known_hosts
-        name: "{{item}}"
-        key: "{{item}} {{lookup('file', '{{key_path}}/{{item}}/sshd.pub')}}"
-        state: present
-      with_items: "{{groups['honeypot']}}"
-    roles:
-    - crockpot.collector
 
   - name: honeypot
     hosts: honeypot
@@ -52,3 +14,8 @@
     - honeypot.dionaea
     - honeypot.glastopf
     - crockpot.start
+
+  - name: collector
+    hosts: collector
+    roles:
+    - crockpot.collector

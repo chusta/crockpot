@@ -1,5 +1,20 @@
 ---
 
+  - name: ssh | set key_path
+    set_fact:
+      key_path: "{{playbook_dir}}/resources/keys"
+  - name: ssh | old known hosts
+    file:
+      path: /etc/ssh/ssh_known_hosts
+      state: absent
+  - name: ssh | add known hosts
+    known_hosts:
+      path: /etc/ssh/ssh_known_hosts
+      name: "{{item}}"
+      key: "{{item}} {{lookup('file', '{{key_path}}/{{item}}/sshd.pub')}}"
+      state: present
+    with_items: "{{groups['honeypot']}}"
+
   - name: create group
     group:
       name: crockpot
@@ -21,51 +36,6 @@
       state: directory
     with_items:
     - /honeypot
-
-  - name: install elastic key
-    apt_key:
-      url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-      state: present
-
-  - name: install elastic repo
-    apt_repository:
-      repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
-      state: present
-
-  - name: update system packages
-    apt:
-      upgrade: dist
-      update_cache: yes
-      cache_valid_time: 3600
-
-  - name: system packages
-    apt:
-      name: "{{item}}"
-      state: latest
-    with_items:
-    - apt-transport-https
-    - autossh
-    - ca-certificates
-    - default-jre-headless
-
-  - name: install elk
-    apt:
-      name: "{{item}}"
-      state: latest
-    with_items:
-    - elasticsearch
-    - logstash
-    - kibana
-
-  - name: start elk
-    systemd:
-      name: "{{item}}"
-      state: started
-      enabled: yes
-    with_items:
-    - elasticsearch
-    - logstash
-    - kibana
 
   - name: download geolite2 db
     get_url:
@@ -133,11 +103,35 @@
     - "{{tuns}}"
     - "{{groups['honeypot']}}"
 
+  - name: install autossh
+    apt:
+      name: autossh
+      state: latest
+
   - name: start ssh tunnels
     systemd:
       name: "autossh_{{item}}"
       daemon_reload: yes
       enabled: yes
-      state: started
+      state: restarted
     with_items:
     - "{{groups['honeypot']}}"
+
+  - name: install elk
+    apt:
+      name: "{{item}}"
+      state: latest
+    with_items:
+    - elasticsearch
+    - logstash
+    - kibana
+
+  - name: start elk
+    systemd:
+      name: "{{item}}"
+      state: started
+      enabled: yes
+    with_items:
+    - elasticsearch
+    - logstash
+    - kibana

@@ -1,5 +1,7 @@
 *.pyc
 *.swp
 *.log
+*.retry
+
 .vagrant/
 resources/

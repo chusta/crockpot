@@ -72,16 +72,24 @@ Crockpot deploys ephemeral honeypots with a central log collector.
 Once the above changes are made, run the `deploy.sh` script.
 You'll be good to go! (hopefully)
 
+## Usage
+
+#### Kibana Dashboard
+To view the Kibana dashboard, an SSH-tunnel must be established for port forwarding.
+
+* For persistent access, install `autossh`
+```
+# kibana dashboard
+autossh -M 0 USER@COLLECTOR_ADDR -L 25601:localhost:5601 -N &
+
+# elasticsearch
+autossh -M 0 USER@COLLECTOR_ADDR -L 29200:localhost:9200 -N &
+```
+
 ## DevTest
-Vagrant configurations exist for both single and multi-system setups.
+Vagrant configuration exists primarily for testing.
 
-* Rename `Vagrantfile.single` or `Vagrantfile.multi` to `Vagrantfile`
 * `vagrant up`
-
-See associated Vagrantfile for honeypot port forwards. You can test the
-honeypot services by connecting to the localhost port, for example:
-`ssh root localhost -p 10022` => ssh to `hpot-01` cowrie
-`ssh root localhost -p 20022` => ssh to `hpot-02` cowrie
 
 This process attempts to standardize the production and dev/test
 environments, making it simpler to make and validate any changes.
