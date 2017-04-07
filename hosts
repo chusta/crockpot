@@ -1,5 +1,13 @@
+[crockpot:children]
+collector
+honeypot
+
+[crockpot:vars]
+port=22
+
+
 [collector]
-localhost
+127.0.0.1 ansible_user=user ansible_port={{port}}
 
 [honeypot]
-localhost
+127.0.0.1 ansible_user=user ansible_port={{port}}

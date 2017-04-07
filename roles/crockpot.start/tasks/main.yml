@@ -10,3 +10,4 @@
 
   - name: docker-compose up
     command: chdir=/honeypot docker-compose up -d
+    ignore_errors: yes

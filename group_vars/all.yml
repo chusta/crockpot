@@ -1,3 +1,6 @@
 ---
 
   mgmt_port: 22
+
+  cowrie_ssh: 2222
+  cowrie_telnet: 2323

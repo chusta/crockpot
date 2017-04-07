@@ -2,8 +2,8 @@
     build:
       context: cowrie
     ports:
-    - "2222:2222"
-    - "2323:2323"
+    - "{{cowrie_ssh}}:2222"
+    - "{{cowrie_telnet}}:2323"
     volumes:
     - {{cowrie_path}}/logs:{{cowrie_path}}/logs
     - {{cowrie_path}}/download:{{cowrie_path}}/download
