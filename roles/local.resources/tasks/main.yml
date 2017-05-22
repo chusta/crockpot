@@ -1,0 +1,23 @@
+---
+
+  - name: ssh tunnel | set key_path
+    set_fact:
+      key_path: "{{playbook_dir}}/resources/keys/{{inventory_hostname}}"
+
+  - name: ssh tunnel | create path
+    local_action: file path="{{key_path}}" state=directory recurse=yes
+    become: false
+
+  - name: ssh tunnel | create keys
+    local_action: >
+      shell ssh-keygen -f "{{key_path}}/tun.key" -t ed25519 -C crockpot -N "" -q
+    args:
+      creates: "{{key_path}}/tun.key"
+    become: false
+
+  - name: ssh | retrieve host keys
+    fetch:
+      src: /etc/ssh/ssh_host_ed25519_key.pub
+      dest: "{{key_path}}/sshd.pub"
+      flat: yes
+    become: false

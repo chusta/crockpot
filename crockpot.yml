@@ -3,7 +3,7 @@
   - name: prerequisites
     hosts: all
     roles:
-    - resources
+    - local.resources
     - crockpot
 
   - name: honeypot
